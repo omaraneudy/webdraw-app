@@ -10,6 +10,9 @@ const shapeButtons = document.querySelectorAll(".shape-button");
 
 let selectedShape;
 let isDrawingLine = false;
+let isDrawing = false;
+let startPointX;
+let startPointY;
 
 canvas.width = screen.width;
 canvas.height = screen.height;
@@ -52,6 +55,9 @@ document.addEventListener("mousedown", e => {
     ctx.closePath();
     switch (selectedShape) {
         case "circle":
+            ctx.moveTo(e.clientX, e.clientY);
+            // ctx.closePath();
+            ctx.beginPath();
             ctx.arc(e.clientX, e.clientY,60,0,2 * Math.PI);
             ctx.stroke();
             break;
@@ -59,36 +65,56 @@ document.addEventListener("mousedown", e => {
             ctx.strokeRect(e.clientX, e.clientY, 100, 60);
             break;
         case "line":
+            startPointX = e.clientX;
+            startPointY = e.clientY;
             console.log("we're in line case");
-            drawLine(e);
+            drawLine(e, startPointX, startPointY);
             break;
         case "free-hand":
-            ctx.strokeRect(e.clientX-dif.x, e.clientY-dif.y, 100, 60);
-            ctx.stroke();
+            isDrawing = true;
+            ctx.beginPath();
             break;
         default:
             break;
-        }
+    }
             //ctx.lineTo(e.clientX,e.clientY);
 })
         
 document.addEventListener("mouseup", e => {
+     isDrawingLine = false;
+     isDrawing = false;
+     ctx.closePath();
+
     //ctx.closePath();
 })
-const drawLine = (e) => {
+const drawLine = (e, startPointX, startPointY) => {
+
+    // ctx.beginPath();
+    if (startPointX && startPointY) {
+        ctx.lineTo(startPointX, startPointY);
+        ctx.moveTo(e.clientX, e.clientY);
+        ctx.lineTo(e.clientX, e.clientY);
+        ctx.stroke();
+        ctx.closePath();
+        startPointX = "";
+        startPointY = "";
+    }
     //ctx.closePath();
-    ctx.beginPath();
-    ctx.lineTo(e.clientX, e.clientY);
-    ctx.stroke();
+
     console.log("we're in drawLine",e.clientX, e.clientY);
 }
 
 document.addEventListener("mousemove", e => {
-    console.log("mouse is moving");
-    drawLine(e);
+    if (isDrawing) {
+        ctx.lineTo(e.clientX, e.clientY);
+        ctx.stroke();
+    }
+    
+    // console.log("mouse is moving");
+    // // drawLine(e);
     
 })
-ctx.beginPath();
-ctx.lineTo(45, 560);
-ctx.lineTo(453, 123);
-ctx.stroke();
+// ctx.beginPath();
+// ctx.lineTo(45, 560);
+// ctx.lineTo(453, 123);
+// ctx.stroke();
