@@ -50,6 +50,10 @@ shapeButtons.forEach(shapeButton => {
     })
 })
 
+let testSquare = false;
+let testSquarePointX = null;
+let testSquarePointY = null;
+
 document.addEventListener("mousedown", e => {
     console.log(e.clientX);
     ctx.closePath();
@@ -62,11 +66,14 @@ document.addEventListener("mousedown", e => {
             ctx.stroke();
             break;
         case "square":
-            ctx.strokeRect(e.clientX, e.clientY, 100, 60);
+            // ctx.strokeRect(e.clientX, e.clientY, 100, 60);
+            testSquarePointX = e.clientX;
+            testSquarePointY = e.clientY;
+            testSquare = true;
             break;
         case "line":
-            startPointX = e.clientX;
-            startPointY = e.clientY;
+            startPointX = e.offsetX;
+            startPointY = e.offsetY;
             console.log("we're in line case");
             drawLine(e, startPointX, startPointY);
             break;
@@ -83,6 +90,7 @@ document.addEventListener("mousedown", e => {
 document.addEventListener("mouseup", e => {
      isDrawingLine = false;
      isDrawing = false;
+     testSquare = false;
      ctx.closePath();
 
     //ctx.closePath();
@@ -105,11 +113,17 @@ const drawLine = (e, startPointX, startPointY) => {
 }
 
 document.addEventListener("mousemove", e => {
+    let ctx2 = canvas.getContext("2d");
+    let ctx3 = canvas.getContext("2d");
+    
     if (isDrawing) {
         ctx.lineTo(e.clientX, e.clientY);
         ctx.stroke();
     }
-    
+    if (testSquare) {
+        ctx3.clearRect(0, 0, 10000, 10000);
+        ctx2.strokeRect(testSquarePointX,testSquarePointY,e.offsetX-testSquarePointX,e.offsetY-testSquarePointY);
+    }
     // console.log("mouse is moving");
     // // drawLine(e);
     
