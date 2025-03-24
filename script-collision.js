@@ -174,9 +174,7 @@ document.addEventListener("mouseup", e => {
         selectedRectangle.x = newPointX;
         selectedRectangle.y = newPointY;
         rectangles.push(selectedRectangle);
-        selectedRectangle = undefined;
-        newPointX = undefined;
-        newPointY = undefined;
+
 
         // ctx.clearRect(0, 0, 10000, 10000);
         // rectangles.forEach(rectangle => {
@@ -184,6 +182,9 @@ document.addEventListener("mouseup", e => {
         //     ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         // });
     }
+    selectedRectangle = undefined;
+    newPointX = undefined;
+    newPointY = undefined;
 
 
 })
@@ -236,8 +237,6 @@ document.addEventListener("mousemove", e => {
 
         newPointX = e.offsetX - (xRectSelect - selectedRectangle.x);
         newPointY = e.offsetY - (yRectSelect - selectedRectangle.y);
-
-
 
         //console.log(e.offsetX-(xRectSelect-selectedRectangle.x),e.offsetY-(yRectSelect-selectedRectangle.y));
 
