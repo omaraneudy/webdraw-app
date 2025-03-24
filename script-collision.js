@@ -153,6 +153,13 @@ document.addEventListener("mouseup", e => {
                 rectangleId += 1;
             }
 
+            if (widthRect < 0 && heightRect < 0) {
+                xRect += widthRect;
+                yRect += heightRect;
+                widthRect = Math.abs(widthRect);
+                heightRect = Math.abs(heightRect);
+            }
+
             rectangles.push(
                 {
                     id: rectangleId,
