@@ -33,6 +33,11 @@ console.log(dif.y + " y ");
 let rectangleId = 0;
 let newPointX = 0;
 let newPointY = 0;
+let isSelected = false;
+let newWidth = 0;
+let newHeight = 0;
+let changingHeight = false;
+let canMove = false;
 
 shapeButtons.forEach(shapeButton => {
     shapeButton.addEventListener("click", e => {
@@ -88,16 +93,32 @@ document.addEventListener("mousedown", e => {
             //testSelect = true;
 
 
-            selectedRectangle = rectangles.find(rectangle =>
-            (xRectSelect > rectangle.x && xRectSelect < rectangle.width + rectangle.x
-                && yRectSelect > rectangle.y && yRectSelect < rectangle.y + rectangle.height));
+            if (isSelected) {
+
+            }
 
 
-            //click on rectangle's border
-            // selectedRectangle = rectangles.find(rectangle =>
-            //     (xRectSelect > rectangle.x && xRectSelect < rectangle.width + rectangle.x 
-            //         && yRectSelect > rectangle.y - 5 && yRectSelect < rectangle.y + 5));
+            //click on rectangle's top border
+            if (isSelected === false) {
+                selectedRectangle = rectangles.find(rectangle =>
+                (xRectSelect > rectangle.x && xRectSelect < rectangle.width + rectangle.x
+                    && yRectSelect > rectangle.y - 5 && yRectSelect < rectangle.y + 5));
+                if (selectedRectangle) {
+                    isSelected = true;
+                    changingHeight = true;
+                }
 
+            } else if (isSelected && selectedRectangle) {
+                if (xRectSelect > selectedRectangle.x && xRectSelect < selectedRectangle.width + selectedRectangle.x
+                    && yRectSelect > selectedRectangle.y && yRectSelect < selectedRectangle.y + selectedRectangle.height) {
+                    canMove = true;
+                }
+                else {
+                    canMove = false;
+                    isSelected = false;
+                }
+                console.log(selectedRectangle);
+            }
 
             console.log(selectedRectangle);
             if (!selectedRectangle) return;
@@ -118,13 +139,6 @@ document.addEventListener("mousedown", e => {
             //Corner2 = x + width
             //Corner3 = (y + height, x + width)
             //Corner4 = y + height 
-
-
-
-
-
-
-
 
             break;
         case "free-hand":
@@ -177,10 +191,27 @@ document.addEventListener("mouseup", e => {
 
 
     }
-    if (selectedRectangle && newPointX && newPointY) {
+    if (selectedRectangle && newPointX && newPointY && newHeight) {
+        
+        if (newHeight < 0) {
+            //newPointX += widthRect;
+            newPointY += newHeight;
+            //widthRect = Math.abs(widthRect);
+            newHeight = Math.abs(newHeight);
+        }
+
         selectedRectangle.x = newPointX;
         selectedRectangle.y = newPointY;
-        rectangles.push(selectedRectangle);
+        selectedRectangle.height = newHeight;
+
+        rectangles.forEach(rectangle => {
+            if (rectangle.id === selectedRectangle.id) {
+                rectangle = selectedRectangle;
+                console.log(rectangle);
+                return;
+            }
+        });
+        //rectangles.push(selectedRectangle);
 
 
         // ctx.clearRect(0, 0, 10000, 10000);
@@ -189,10 +220,12 @@ document.addEventListener("mouseup", e => {
         //     ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         // });
     }
+    isSelected = false;
     selectedRectangle = undefined;
     newPointX = undefined;
     newPointY = undefined;
-
+    changingHeight = false;
+    canMove = false;
 
 })
 const ctx2 = canvas.getContext("2d");
@@ -221,12 +254,10 @@ document.addEventListener("mousemove", e => {
         heightRectSelect = e.offsetY - selectPointY;
 
         ctx2.clearRect(0, 0, 10000, 10000);
-        // ctx2.clearRect(xRectSelect+1, yRectSelect+1, widthRectSelect+1, heightRectSelect+1);
 
 
 
         rectangles.forEach(rectangle => {
-            // ctx.strokeStyle = "black";
             ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         });
 
@@ -235,12 +266,27 @@ document.addEventListener("mousemove", e => {
 
 
     }
+    if (isSelected && changingHeight && (xRectSelect > selectedRectangle.x && xRectSelect < selectedRectangle.width + selectedRectangle.x
+        && yRectSelect > selectedRectangle.y - 5 && yRectSelect < selectedRectangle.y + 5)) {
+        //newWidth = e.offsetX - (xRectSelect - selectedRectangle.x);
+        newPointX = selectedRectangle.x;
+        newPointY = e.offsetY;
+        newHeight = (selectedRectangle.y - e.offsetY) + selectedRectangle.height;
+
+        ctx.clearRect(0, 0, 10000, 10000);
+        ctx.strokeRect(selectedRectangle.x, newPointY, selectedRectangle.width, newHeight);
+
+        rectangles.forEach(rectangle => {
+            if (rectangle.id !== selectedRectangle.id)
+                ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        });
+
+    }
     //xClick=350
     //x=260
     //xdifference = 90
 
-
-    if (selectedRectangle) {
+    if (selectedRectangle && canMove && changingHeight === false) {
 
         newPointX = e.offsetX - (xRectSelect - selectedRectangle.x);
         newPointY = e.offsetY - (yRectSelect - selectedRectangle.y);
@@ -252,18 +298,7 @@ document.addEventListener("mousemove", e => {
 
         ctx.clearRect(0, 0, 10000, 10000);
 
-
-
         ctx.strokeRect(newPointX, newPointY, selectedRectangle.width, selectedRectangle.height);
-
-        // rectangles.forEach(rectangle =>{
-        //     if (rectangle.id === selectedRectangle.id) {
-        //         selectedRectangle.x = newPointX;
-        //         selectedRectangle.y = newPointY;
-        //         return;
-        //     }
-        // })
-
 
         rectangles.forEach(rectangle => {
             ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
