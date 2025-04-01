@@ -1,10 +1,8 @@
 const canvas = document.getElementById("canvas");
 const dif = canvas.getBoundingClientRect();
 const ctx = canvas.getContext("2d");
-
-const circleButton = document.getElementById("circle");
-const squareButton = document.getElementById("square");
-const lineButton = document.getElementById("line");
+canvas.width = screen.width;
+canvas.height = screen.height;
 
 const shapeButtons = document.querySelectorAll(".shape-button");
 
@@ -14,15 +12,28 @@ let isDrawing = false;
 let startPointX;
 let startPointY;
 
-canvas.width = screen.width;
-canvas.height = screen.height;
+let startSelectPointX;
+let startSelectPointY;
 
 
 
-ctx.strokeRect(30, 40, 20, 20);
 
-console.log(dif.x+" x ");
-console.log(dif.y+" y ");
+let xRect, yRect, widthRect, heightRect;
+let xRectSelect, yRectSelect, widthRectSelect, heightRectSelect;
+let testSelect = false;
+
+let rectangles = [];
+
+let rectangleId = 0;
+let newPointX = 0;
+let newPointY = 0;
+let isSelected = false;
+let newWidth = 0;
+let newHeight = 0;
+let changingHeight = false;
+let canMove = false;
+let tempSelectedRectangle = undefined;
+let heightTop = false;
 
 shapeButtons.forEach(shapeButton => {
     shapeButton.addEventListener("click", e => {
@@ -40,11 +51,11 @@ shapeButtons.forEach(shapeButton => {
                 break;
             case "free-hand":
                 selectedShape = "free-hand";
-                break;              
+                break;
             default:
                 break;
         }
-        console.log("desde foreach "+shapeButton.id+" forma seleccionada "+selectedShape);
+        console.log("desde foreach " + shapeButton.id + " forma seleccionada " + selectedShape);
         e.stopPropagation();
 
     })
@@ -54,81 +65,212 @@ let testSquare = false;
 let testSquarePointX = null;
 let testSquarePointY = null;
 
+let selectedRectangle = null;
+
 document.addEventListener("mousedown", e => {
-    console.log(e.clientX);
-    ctx.closePath();
     switch (selectedShape) {
         case "circle":
-            ctx.moveTo(e.clientX, e.clientY);
-            // ctx.closePath();
-            ctx.beginPath();
-            ctx.arc(e.clientX, e.clientY,60,0,2 * Math.PI);
-            ctx.stroke();
             break;
         case "square":
             // ctx.strokeRect(e.clientX, e.clientY, 100, 60);
-            testSquarePointX = e.clientX;
-            testSquarePointY = e.clientY;
+            testSquarePointX = e.offsetX;
+            testSquarePointY = e.offsetY;
             testSquare = true;
             break;
         case "line":
-            startPointX = e.offsetX;
-            startPointY = e.offsetY;
             console.log("we're in line case");
-            drawLine(e, startPointX, startPointY);
+            xRectSelect = e.offsetX;
+            yRectSelect = e.offsetY;
+            //testSelect = true;
+
+            tempSelectedRectangle = rectangles.find(rectangle =>
+            (xRectSelect > rectangle.x && xRectSelect < rectangle.width + rectangle.x
+                && yRectSelect > rectangle.y - 10 && yRectSelect < rectangle.y + 10));
+
+            if (tempSelectedRectangle) {
+                isSelected = true;
+                canMove = true;
+                selectedRectangle = tempSelectedRectangle;
+
+            }
+
+
+            //click on rectangle's top border
+            if (selectedRectangle) {
+                isSelected = true;
+                changingHeight = true;
+            }
+
+
+            if (selectedRectangle && xRectSelect > selectedRectangle.x && xRectSelect < selectedRectangle.width + selectedRectangle.x
+                && yRectSelect > selectedRectangle.y && yRectSelect < selectedRectangle.y + selectedRectangle.height) {
+                canMove = true;
+            }
+
+            console.log(selectedRectangle);
+            if (!selectedRectangle) return;
+            ctx.beginPath();
+            ctx.strokeText(`x=${selectedRectangle.x}, y=${selectedRectangle.y}`, selectedRectangle.x, selectedRectangle.y);
+
+
+            //punto1 =  ,  punto2 = x + width, punto3 = (y + height, x + width), punto4 = y + height 
+
+
+            //Corner1 = (x,y)
+            //Corner2 = x + width
+            //Corner3 = (y + height, x + width)
+            //Corner4 = y + height 
+
             break;
         case "free-hand":
-            isDrawing = true;
-            ctx.beginPath();
             break;
         default:
             break;
     }
-            //ctx.lineTo(e.clientX,e.clientY);
 })
-        
+
 document.addEventListener("mouseup", e => {
-     isDrawingLine = false;
-     isDrawing = false;
-     testSquare = false;
-     ctx.closePath();
+    isDrawingLine = false;
+    isDrawing = false;
+    testSquare = false;
+    testSelect = false;
+    ctx.closePath();
 
-    //ctx.closePath();
-})
-const drawLine = (e, startPointX, startPointY) => {
+    if (selectedShape === "square") {
 
-    // ctx.beginPath();
-    if (startPointX && startPointY) {
-        ctx.lineTo(startPointX, startPointY);
-        ctx.moveTo(e.clientX, e.clientY);
-        ctx.lineTo(e.clientX, e.clientY);
-        ctx.stroke();
-        ctx.closePath();
-        startPointX = "";
-        startPointY = "";
+        if (widthRect < 0 && heightRect < 0) {
+            xRect += widthRect;
+            yRect += heightRect;
+            widthRect = Math.abs(widthRect);
+            heightRect = Math.abs(heightRect);
+        }
+
+        if (xRect && yRect && widthRect && heightRect) {
+
+            rectangleId += 1;
+
+            if (rectangles.length == 0) {
+                rectangleId = 0;
+            }
+
+            rectangles.push(
+                {
+                    id: rectangleId,
+                    x: xRect,
+                    y: yRect,
+                    width: widthRect,
+                    height: heightRect
+                }
+            );
+
+            xRect = null;
+            yRect = null;
+            widthRect = null;
+            heightRect = null;
+        }
+
+
     }
-    //ctx.closePath();
+    if (selectedRectangle && newPointX && newPointY && newHeight) {
 
-    console.log("we're in drawLine",e.clientX, e.clientY);
-}
+        if (newHeight < 0) {
+            //newPointX += widthRect;
+            newPointY += newHeight;
+            //widthRect = Math.abs(widthRect);
+            newHeight = Math.abs(newHeight);
+        }
+
+        selectedRectangle.x = newPointX;
+        selectedRectangle.y = newPointY;
+        selectedRectangle.height = newHeight;
+
+        rectangles.forEach(rectangle => {
+            if (rectangle.id === selectedRectangle.id) {
+                rectangle = selectedRectangle;
+                console.log(rectangle);
+                return;
+            }
+        });
+    }
+    isSelected = false;
+    newPointX = undefined;
+    newPointY = undefined;
+    changingHeight = false;
+    canMove = false;
+
+})
+
 
 document.addEventListener("mousemove", e => {
-    let ctx2 = canvas.getContext("2d");
-    let ctx3 = canvas.getContext("2d");
-    
-    if (isDrawing) {
-        ctx.lineTo(e.clientX, e.clientY);
-        ctx.stroke();
-    }
     if (testSquare) {
-        ctx3.clearRect(0, 0, 10000, 10000);
-        ctx2.strokeRect(testSquarePointX,testSquarePointY,e.offsetX-testSquarePointX,e.offsetY-testSquarePointY);
+        xRect = testSquarePointX;
+        yRect = testSquarePointY;
+        widthRect = e.offsetX - testSquarePointX;
+        heightRect = e.offsetY - testSquarePointY;
+
+        ctx.clearRect(0, 0, 10000, 10000);
+
+        rectangles.forEach(rectangle => {
+            ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        });
+        ctx.strokeRect(xRect, yRect, widthRect, heightRect);
+        //ctx.strokeRect(testSquarePointX,testSquarePointY,e.offsetX-testSquarePointX,e.offsetY-testSquarePointY);
+
     }
-    // console.log("mouse is moving");
-    // // drawLine(e);
-    
+
+    if (testSelect) {
+        xRectSelect = selectPointX;
+        yRectSelect = selectPointY;
+        widthRectSelect = e.offsetX - selectPointX;
+        heightRectSelect = e.offsetY - selectPointY;
+
+        ctx.clearRect(0, 0, 10000, 10000);
+
+
+
+        rectangles.forEach(rectangle => {
+            ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        });
+
+        ctx.strokeText(`x=${e.offsetX}, y=${e.offsetY}`, e.offsetX, e.offsetY);
+
+
+
+    }
+    if (isSelected && selectedRectangle) {
+        //newWidth = e.offsetX - (xRectSelect - selectedRectangle.x);
+        newPointX = selectedRectangle.x;
+        newPointY = e.offsetY;
+        newHeight = (selectedRectangle.y - e.offsetY) + selectedRectangle.height;
+
+        ctx.clearRect(0, 0, 10000, 10000);
+        ctx.strokeRect(selectedRectangle.x, newPointY, selectedRectangle.width, newHeight);
+
+        rectangles.forEach(rectangle => {
+            if (rectangle.id === selectedRectangle.id)
+                return;
+            ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        });
+
+        return;
+
+    }
+
+    if (selectedRectangle && canMove) {
+
+        newPointX = e.offsetX - (xRectSelect - selectedRectangle.x);
+        newPointY = e.offsetY - (yRectSelect - selectedRectangle.y);
+
+        ctx.clearRect(0, 0, 10000, 10000);
+
+        ctx.strokeRect(newPointX, newPointY, selectedRectangle.width, selectedRectangle.height);
+
+        rectangles.forEach(rectangle => {
+            if (rectangle.id === selectedRectangle.id)
+                return;
+            ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        });
+    }
+
+
 })
-// ctx.beginPath();
-// ctx.lineTo(45, 560);
-// ctx.lineTo(453, 123);
-// ctx.stroke();
