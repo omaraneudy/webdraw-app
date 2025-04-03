@@ -15,9 +15,6 @@ let startPointY;
 let startSelectPointX;
 let startSelectPointY;
 
-
-
-
 let xRect, yRect, widthRect, heightRect;
 let xRectSelect, yRectSelect, widthRectSelect, heightRectSelect;
 let testSelect = false;
@@ -37,7 +34,6 @@ let heightTop = false;
 
 shapeButtons.forEach(shapeButton => {
     shapeButton.addEventListener("click", e => {
-        ctx.closePath();
         switch (shapeButton.id) {
             case "circle":
                 selectedShape = "circle";
@@ -55,7 +51,6 @@ shapeButtons.forEach(shapeButton => {
             default:
                 break;
         }
-        console.log("desde foreach " + shapeButton.id + " forma seleccionada " + selectedShape);
         e.stopPropagation();
 
     })
@@ -72,7 +67,6 @@ document.addEventListener("mousedown", e => {
         case "circle":
             break;
         case "square":
-            // ctx.strokeRect(e.clientX, e.clientY, 100, 60);
             testSquarePointX = e.offsetX;
             testSquarePointY = e.offsetY;
             testSquare = true;
