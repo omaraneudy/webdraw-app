@@ -17,7 +17,7 @@ class HomeView {
         this.selectedShape = undefined;
         this.workingShape = undefined;
         this.newPoints = undefined;
-        this.canMove = false;
+        this.selectMode = "move";
 
         this.detectedShape = undefined;
 
@@ -65,23 +65,27 @@ class HomeView {
                     this.rectangle.selectedPointX = e.offsetX;
                     this.rectangle.selectedPointY = e.offsetY;
 
-                    if (!this.workingShape && this.selectedShape) {
-
-                        this.workingShape = this.rectangle.findShape(this.rectangle.selectedPointX, this.rectangle.selectedPointY, false);
-                        // if (this.workingShape.id !== this.selectedShape.id)
-                        //     this.workingShape = undefined;
+                    if (this.selectedShape) {
+                        this.workingShape = this.selectedShape;
                     }
 
-                    if (this.workingShape) {
-                        if (this.workingShape.id !== this.selectedShape.id)
-                            this.workingShape = undefined;
+                    if (this.workingShape && this.selectedShape && this.workingShape.id === this.selectedShape.id) {
+
+                        let shapeSide = this.rectangle.detectArea(this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.selectedShape);
+
+                        if (shapeSide.side === "center") {
+                            this.selectMode = "move";
+                        }
+                        else if (shapeSide.side === "top" || shapeSide.side === "right" ||
+                            shapeSide.side === "bottom" || shapeSide.side === "left") {
+                            this.selectMode = "changeSize";
+
+                        }
 
                     }
-                    
-                    
+
                     this.selectedShape = this.rectangle.findShape(this.rectangle.selectedPointX, this.rectangle.selectedPointY);
-                    
-                    this.canMove = true;
+
                     break;
                 case "rectangle":
                     this.rectangle.startPointX = e.offsetX;
@@ -112,13 +116,25 @@ class HomeView {
                 this.sayHello();
 
                 if (this.workingShape && this.newPoints) {
+
+                    if (this.newPoints.newWidth < 0) {
+                        this.newPoints.newPointX += this.newPoints.newWidth;
+                        this.newPoints.newWidth = Math.abs(this.newPoints.newWidth);
+                    }
+
+                    if (this.newPoints.newHeight < 0) {
+                        this.newPoints.newPointY += this.newPoints.newHeight;
+                        this.newPoints.newHeight = Math.abs(this.newPoints.newHeight);
+                    }
+
                     this.workingShape.x = this.newPoints.newPointX;
                     this.workingShape.y = this.newPoints.newPointY;
-                    this.workingShape.width ??= this.newPoints.newWidth;
-                    this.workingShape.height ??= this.newPoints.newHeight;
+                    this.workingShape.width = this.newPoints.newWidth;
+                    this.workingShape.height = this.newPoints.newHeight;
+
 
                     this.rectangle.rectangles.forEach(rectangle => {
-                        if (rectangle.id ===  this.workingShape.id) {
+                        if (rectangle.id === this.workingShape.id) {
                             rectangle = this.workingShape;
                             return;
                         }
@@ -126,49 +142,13 @@ class HomeView {
 
                     this.newPoints = undefined;
                 }
-
-                this.workingShape = undefined;
-                this.canMove = false;
-
+                this.selectMode = "";
             }
-            //this.sayHello();
-            // if (selectedRectangle && newPointX && newPointY && newHeight) {
-
-            //     if (newHeight < 0) {
-            //         //newPointX += widthRect;
-            //         newPointY += newHeight;
-            //         //widthRect = Math.abs(widthRect);
-            //         newHeight = Math.abs(newHeight);
-            //     }
-
-            //     selectedRectangle.x = newPointX;
-            //     selectedRectangle.y = newPointY;
-            //     selectedRectangle.height = newHeight;
-
-            //     rectangles.forEach(rectangle => {
-            //         if (rectangle.id === selectedRectangle.id) {
-            //             rectangle = selectedRectangle;
-            //             console.log(rectangle);
-            //             return;
-            //         }
-            //     });
-            // }
-            // isSelected = false;
-            // newPointX = undefined;
-            // newPointY = undefined;
-            // changingHeight = false;
-            // canMove = false;
-
         })
     }
 
     mouseMove() {
         document.addEventListener("mousemove", e => {
-
-
-            if (this.rectangle.findShape(e.offsetX, e.offsetY)) {
-                this.detectedShape = this.rectangle.findShape(e.offsetX, e.offsetY);
-            }
 
             if (this.creatingShape) {
 
@@ -184,25 +164,21 @@ class HomeView {
                 this.ctx.strokeRect(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
 
             }
-            if (this.workingShape && this.detectedShape) {
+
+            if (this.workingShape && this.selectMode === "move") {
 
                 this.newPoints = this.rectangle.changePosition(e, this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.workingShape);
                 this.clearCanvas();
                 this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
                 this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx, this.workingShape.id);
             }
-            if (this.workingShape) {
+            if (this.workingShape && this.selectMode === "changeSize") {
                 this.newPoints = this.rectangle.changeSize(e, this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.workingShape);
                 console.log(this.newPoints, this.workingShape, e);
                 this.clearCanvas();
                 this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
                 this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx, this.workingShape.id);
-                return;
             }
-
-
-
-
         });
     }
 

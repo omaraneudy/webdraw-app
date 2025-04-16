@@ -57,15 +57,13 @@ class Rectangle {
     }
 
     changeSize(e, selectedPointX, selectedPointY, selectedRectangle) {
-        //newWidth = e.offsetX - (xRectSelect - selectedPointX);
+
         let newPointX = selectedRectangle.x;
         let newPointY = selectedRectangle.y;
         let newWidth = selectedRectangle.width;
         let newHeight = selectedRectangle.height;
 
-
         // Top Left
-
         if (selectedPointX > selectedRectangle.x - 10 && selectedPointX < selectedRectangle.x + 10 &&
             selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
 
@@ -79,11 +77,10 @@ class Rectangle {
 
         // Top Right
         if (selectedPointX > selectedRectangle.x + selectedRectangle.width - 10 && selectedPointX < selectedRectangle.x + selectedRectangle.width + 10 &&
-            selectedPointX > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
+            selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
 
             newPointY = e.offsetY;
             newWidth = (e.offsetX - selectedPointX) + selectedRectangle.width;
-            // newWidth = 400 -300
             newHeight = (selectedPointY - e.offsetY) + selectedRectangle.height;
 
             return { newPointX, newPointY, newWidth, newHeight };
@@ -93,7 +90,7 @@ class Rectangle {
         // Bottom Right 
 
         if (selectedPointX > selectedRectangle.x + selectedRectangle.width - 10 && selectedPointX < selectedRectangle.x + selectedRectangle.width + 10 &&
-            selectedPointX > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
+            selectedPointY > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
             newWidth = (e.offsetX - selectedPointX) + selectedRectangle.width;
             newHeight = (e.offsetY - selectedPointY) + selectedRectangle.height;
@@ -103,14 +100,13 @@ class Rectangle {
 
         // Bottom Left
         if (selectedPointX > selectedRectangle.x - 10 && selectedPointX < selectedRectangle.x + 10 &&
-            selectedPointX > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
+            selectedPointY > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
-            // newPointX = e.offsetX;
-            // newPointY = e.offsetY;
-            // newWidth = (selectedPointX - e.offsetX) + selectedRectangle.width;
-            // newHeight = (selectedPointY - e.offsetY) + selectedRectangle.height;
+            newPointX = e.offsetX;
+            newWidth = (selectedPointX - e.offsetX) + selectedRectangle.width;
+            newHeight = (e.offsetY - selectedPointY) + selectedRectangle.height;
 
-            // return { newPointX, newPointY, newWidth, newHeight };
+            return { newPointX, newPointY, newWidth, newHeight };
         }
         // Top
 
@@ -123,49 +119,44 @@ class Rectangle {
             return { newPointX, newPointY, newWidth, newHeight };
         }
 
-
-
-
         // Right
         if (selectedPointX > selectedRectangle.x + selectedRectangle.width - 10 && selectedPointX < selectedRectangle.x + selectedRectangle.width + 10 &&
-            selectedPointX > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height) {
+            selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
             newWidth = (e.offsetX - selectedPointX) + selectedRectangle.width;
 
             return { newPointX, newPointY, newWidth, newHeight };
-
         }
 
-
-
         // Bottom
-
         if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
-            && selectedPointY > selectedRectangle.y && selectedPointY < selectedRectangle.y + selectedRectangle.height) {
+            && selectedPointY > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
-            newPointY = e.offsetY;
-            newHeight = (selectedPointY - e.offsetY) + selectedRectangle.height;
+            newHeight = (e.offsetY - selectedPointY) + selectedRectangle.height;
 
             return { newPointX, newPointY, newWidth, newHeight };
         }
 
-
-
         // Left
         if (selectedPointX > selectedRectangle.x - 10 && selectedPointX < selectedRectangle.x + 10 &&
-            selectedPointX > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
+            selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
+            newPointX = e.offsetX;
+            newWidth = (selectedPointX - e.offsetX) + selectedRectangle.width;
+
+            return { newPointX, newPointY, newWidth, newHeight };
         }
 
-
-        // return { newPointX, newPointY, newWidth, newHeight };
+        return { newPointX, newPointY, newWidth, newHeight };
     }
 
     changePosition(e, xRectSelect, yRectSelect, selectedRectangle) {
         let newPointX = e.offsetX - (xRectSelect - selectedRectangle.x);
         let newPointY = e.offsetY - (yRectSelect - selectedRectangle.y);
+        let newWidth = selectedRectangle.width;
+        let newHeight = selectedRectangle.height;
 
-        return { newPointX, newPointY };
+        return { newPointX, newPointY, newWidth, newHeight };
     }
 
     renderRectangles(rectangles, ctx, id = "") {
@@ -179,16 +170,29 @@ class Rectangle {
     findShape(selectedPointX, selectedPointY, border = true) {
         if (border)
             return this.rectangles.find(rectangle =>
-                selectedPointX > rectangle.x && selectedPointX < rectangle.width + rectangle.x
-                && selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + 10);
+                selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.width + rectangle.x + 10
+                && selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + 10 ||
+
+                // Right
+                selectedPointX > rectangle.x + rectangle.width - 10 && selectedPointX < rectangle.x + rectangle.width + 10 &&
+                selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + rectangle.height + 10 ||
+
+                // Bottom
+                selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.width + rectangle.x + 10
+                && selectedPointY > rectangle.y + rectangle.height - 10 && selectedPointY < rectangle.y + rectangle.height + 10 ||
+
+                // Left
+                selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.x + 10 &&
+                selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + rectangle.height + 10
+
+            );
 
         return this.rectangles.find(rectangle => selectedPointX > rectangle.x && selectedPointX < rectangle.width + rectangle.x
-            && selectedPointY > rectangle.y && selectedPointY < rectangle.y + rectangle
-                .height);
+            && selectedPointY > rectangle.y && selectedPointY < rectangle.y + rectangle.height);
 
     }
 
-    detectArea() {
+    detectArea(selectedPointX, selectedPointY, selectedRectangle) {
 
         // x - 10 && x + 10
         // y - 10 && y + 10
@@ -202,29 +206,42 @@ class Rectangle {
         // x - 10 && x + 10
         // y + height - 10 && y + height + 10
 
+        // Top
 
+        if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
+            && selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
 
+            return {id: selectedRectangle.id, side: "top"};
+        }
 
+        // Right
+        if (selectedPointX > selectedRectangle.x + selectedRectangle.width - 10 && selectedPointX < selectedRectangle.x + selectedRectangle.width + 10 &&
+            selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
-        this.rectangles.find(rectangle =>
+            return {id: selectedRectangle.id, side: "right"};
+        }
 
-            selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.x + 10 &&
-            selectedPointX > rectangle.y - 10 && selectedPointY < rectangle.y + 10 ||
+        // Bottom
+        if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
+            && selectedPointY > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
-            selectedPointX > rectangle.x && selectedPointX < rectangle.width + rectangle.x
-            && selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + 10 ||
+            return {id: selectedRectangle.id, side: "bottom"};
+        }
 
-            selectedPointX > rectangle.x + rectangle.width - 10 && selectedPointX < rectangle.x + rectangle.width + 10 &&
-            selectedPointX > rectangle.y - 10 && selectedPointY < rectangle.y + 10 ||
+        // Left
+        if (selectedPointX > selectedRectangle.x - 10 && selectedPointX < selectedRectangle.x + 10 &&
+            selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
-            selectedPointX > rectangle.x + rectangle.width - 10 && selectedPointX < rectangle.x + rectangle.width + 10 &&
-            selectedPointX > rectangle.y + rectangle.height - 10 && selectedPointY < rectangle.y + rectangle.height + 10 ||
+            return {id: selectedRectangle.id, side: "left"};
+        }
 
-            selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.x + 10 &&
-            selectedPointX > rectangle.y + rectangle.height - 10 && selectedPointY < rectangle.y + rectangle.height + 10
+        // Center
+        if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
+            && selectedPointY > selectedRectangle.y && selectedPointY < selectedRectangle.y + selectedRectangle.height) {
+            return {id: selectedRectangle.id, side: "center"};
+        }
 
-
-        );
+        return {id: "", side: ""};
 
     }
 
