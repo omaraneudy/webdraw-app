@@ -26,7 +26,8 @@ class Rectangle {
         }
     }
 
-    addRectangle(x, y, width, height) {
+    addRectangle(x, y, width, height, fill = false, fillColor = '#ffffff00',
+         strokeColor = '#000000', lineWidth = 1, type = "rectangle") {
 
         if (width < 0 && height < 0) {
 
@@ -50,7 +51,12 @@ class Rectangle {
                     x,
                     y,
                     width,
-                    height
+                    height,
+                    type, 
+                    fill, 
+                    fillColor,
+                    strokeColor, 
+                    lineWidth
                 }
             );
         }
@@ -163,6 +169,12 @@ class Rectangle {
         rectangles.forEach(rectangle => {
             if (rectangle.id === id)
                 return;
+            if (rectangle.fill) {
+                ctx.fillStyle = rectangle.fillColor;
+                ctx.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            }
+            ctx.strokeStyle = rectangle.strokeColor;
+            ctx.lineWidth = rectangle.lineWidth;
             ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         });
     }

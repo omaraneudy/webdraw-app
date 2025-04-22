@@ -7,6 +7,9 @@ class HomeView {
         this.canvas.width = screen.width;
         this.canvas.height = screen.height;
 
+        this.fillButtons = document.querySelectorAll(".fill-button");
+        this.fillColor = "#00000000";
+
         this.selectedOption;
 
         this.rectangle = new Rectangle();
@@ -96,6 +99,14 @@ class HomeView {
                     break;
             }
         });
+
+        this.fillButtons.forEach(fillButton => {
+            //console.log(this.fillButton);
+            fillButton.addEventListener("click", e => {
+                console.log(this.rgbToHex(getComputedStyle(fillButton).backgroundColor));
+                this.fillColor = this.rgbToHex(getComputedStyle(fillButton).backgroundColor).toString();
+            });
+        });
     }
 
     mouseUp() {
@@ -104,7 +115,7 @@ class HomeView {
 
             if (this.selectedOption === "rectangle") {
 
-                this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
+                this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, true, this.fillColor);
 
                 this.rectangle.x = null;
                 this.rectangle.y = null;
@@ -185,6 +196,16 @@ class HomeView {
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+
+    rgbToHex(rgb) {
+        const result = rgb.match(/\d+/g);
+        const r = parseInt(result[0]).toString(16).padStart(2, '0');
+        const g = parseInt(result[1]).toString(16).padStart(2, '0');
+        const b = parseInt(result[2]).toString(16).padStart(2, '0');
+        return `#${r}${g}${b}`;
+    }
+  
+
 }
 
 export default HomeView;

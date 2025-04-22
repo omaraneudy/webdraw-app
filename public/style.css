@@ -8,6 +8,7 @@ body {
     display: flex;
     justify-items: center;
 }
+
 .shapes {
     display: flex;
     justify-self: center;
@@ -21,4 +22,60 @@ body {
 
 canvas {
     border: 2px solid #000;
+}
+
+.style-section {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    background-color: #ddd;
+    margin-top: 50px;
+}
+
+.stroke-style {
+    width: 50px;
+    height: 200px;
+    background-color: #ddd;
+}
+
+.fill-style {
+    width: 50px;
+    height: 200px;
+    background-color: #ddd;
+
+}
+
+.stroke-button,
+.fill-button {
+    width: 30px;
+    height: 30px;
+}
+.fill-button > img {
+    width: 30px;
+    height: 30px;
+}
+
+#black-stroke,
+#black-fill {
+    background-color: #000000;
+}
+
+#red-stroke,
+#red-fill {
+    background-color: #ff0000;
+}
+
+#blue-stroke,
+#blue-fill {
+    background-color: #0000ff;
+}
+
+#green-stroke,
+#green-fill {
+    background-color: #00ff00;
+}
+
+#transparent-stroke,
+#transparent-fill {
+    background-color: #00000000;
 }
