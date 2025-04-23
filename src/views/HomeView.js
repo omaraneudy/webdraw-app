@@ -101,10 +101,21 @@ class HomeView {
         });
 
         this.fillButtons.forEach(fillButton => {
-            //console.log(this.fillButton);
             fillButton.addEventListener("click", e => {
-                console.log(this.rgbToHex(getComputedStyle(fillButton).backgroundColor));
-                this.fillColor = this.rgbToHex(getComputedStyle(fillButton).backgroundColor).toString();
+                console.log(this.rgbaToHex(getComputedStyle(fillButton).backgroundColor));
+                this.fillColor = this.rgbaToHex(getComputedStyle(fillButton).backgroundColor).toString();
+                
+                if (this.selectedOption === "select" && this.workingShape) {
+                    this.rectangle.rectangles.forEach(rectangle => {
+                        if (rectangle.id === this.workingShape.id) {
+                            rectangle.fill = true;
+                            rectangle.fillColor = this.fillColor;
+                            return;
+                        }
+                    });
+                    this.clearCanvas();
+                    this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx)
+                }
             });
         });
     }
@@ -115,7 +126,10 @@ class HomeView {
 
             if (this.selectedOption === "rectangle") {
 
-                this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, true, this.fillColor);
+                let isFill = true;
+                if (this.fillColor === "#00000000") isFill = false;
+
+                this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, isFill, this.fillColor);
 
                 this.rectangle.x = null;
                 this.rectangle.y = null;
@@ -142,6 +156,7 @@ class HomeView {
                     this.workingShape.y = this.newPoints.newPointY;
                     this.workingShape.width = this.newPoints.newWidth;
                     this.workingShape.height = this.newPoints.newHeight;
+                    //this.workingShape.fillColor = this.fillColor;
 
 
                     this.rectangle.rectangles.forEach(rectangle => {
@@ -171,7 +186,10 @@ class HomeView {
                 this.clearCanvas();
 
                 this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx);
-
+                if (this.fillColor !== "#00000000") {
+                    this.ctx.fillStyle = this.fillColor;
+                    this.ctx.fillRect(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
+                }
                 this.ctx.strokeRect(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
 
             }
@@ -180,15 +198,29 @@ class HomeView {
 
                 this.newPoints = this.rectangle.changePosition(e, this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.workingShape);
                 this.clearCanvas();
-                this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
+                
                 this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx, this.workingShape.id);
+
+                if (this.workingShape.fill) {
+                    this.ctx.fillStyle = this.workingShape.fillColor;
+                    this.ctx.fillRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
+                }
+                this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
+                
             }
             if (this.workingShape && this.selectMode === "changeSize") {
                 this.newPoints = this.rectangle.changeSize(e, this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.workingShape);
                 console.log(this.newPoints, this.workingShape, e);
                 this.clearCanvas();
-                this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
+                
                 this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx, this.workingShape.id);
+
+                if (this.workingShape.fill) {
+                    this.ctx.fillStyle = this.workingShape.fillColor;
+                    this.ctx.fillRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
+                }
+                this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
+                
             }
         });
     }
@@ -197,12 +229,21 @@ class HomeView {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    rgbToHex(rgb) {
-        const result = rgb.match(/\d+/g);
+    rgbaToHex(rgba) {
+        const result = rgba.match(/\d+(\.\d+)?/g); // Extrae números incluyendo decimales
+    
+        if (!result) return "#000000";
+    
         const r = parseInt(result[0]).toString(16).padStart(2, '0');
         const g = parseInt(result[1]).toString(16).padStart(2, '0');
         const b = parseInt(result[2]).toString(16).padStart(2, '0');
-        return `#${r}${g}${b}`;
+    
+        // Si hay un valor alfa (transparencia), lo convertimos también
+        const a = result[3] !== undefined
+            ? Math.round(parseFloat(result[3]) * 255).toString(16).padStart(2, '0')
+            : "ff"; // Si no hay alfa, se asume totalmente opaco
+    
+        return `#${r}${g}${b}${a}`;
     }
   
 
