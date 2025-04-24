@@ -10,6 +10,9 @@ class HomeView {
         this.fillButtons = document.querySelectorAll(".fill-button");
         this.fillColor = "#00000000";
 
+        this.strokeButtons = document.querySelectorAll(".stroke-button");
+        this.strokeColor = "#00000000";
+
         this.selectedOption;
 
         this.rectangle = new Rectangle();
@@ -118,6 +121,25 @@ class HomeView {
                 }
             });
         });
+
+        this.strokeButtons.forEach(strokeButton => {
+            strokeButton.addEventListener("click", e => {
+                console.log(this.rgbaToHex(getComputedStyle(strokeButton).backgroundColor));
+                this.strokeColor = this.rgbaToHex(getComputedStyle(strokeButton).backgroundColor).toString();
+                
+                if (this.selectedOption === "select" && this.workingShape) {
+                    this.rectangle.rectangles.forEach(rectangle => {
+                        if (rectangle.id === this.workingShape.id) {
+                            rectangle.stroke = true;
+                            rectangle.strokeColor = this.strokeColor;
+                            return;
+                        }
+                    });
+                    this.clearCanvas();
+                    this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx)
+                }
+            });
+        });
     }
 
     mouseUp() {
@@ -129,7 +151,7 @@ class HomeView {
                 let isFill = true;
                 if (this.fillColor === "#00000000") isFill = false;
 
-                this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, isFill, this.fillColor);
+                this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, isFill, this.fillColor, this.strokeColor);
 
                 this.rectangle.x = null;
                 this.rectangle.y = null;
@@ -190,6 +212,7 @@ class HomeView {
                     this.ctx.fillStyle = this.fillColor;
                     this.ctx.fillRect(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
                 }
+                this.ctx.strokeStyle = this.strokeColor;
                 this.ctx.strokeRect(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
 
             }
@@ -205,6 +228,7 @@ class HomeView {
                     this.ctx.fillStyle = this.workingShape.fillColor;
                     this.ctx.fillRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
                 }
+                this.ctx.strokeStyle = this.workingShape.strokeColor;
                 this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
                 
             }
@@ -219,6 +243,7 @@ class HomeView {
                     this.ctx.fillStyle = this.workingShape.fillColor;
                     this.ctx.fillRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
                 }
+                this.ctx.strokeStyle = this.workingShape.strokeColor;
                 this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
                 
             }
