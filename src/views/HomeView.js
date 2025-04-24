@@ -11,7 +11,7 @@ class HomeView {
         this.fillColor = "#00000000";
 
         this.strokeButtons = document.querySelectorAll(".stroke-button");
-        this.strokeColor = "#00000000";
+        this.strokeColor = "#000000";
 
         this.selectedOption;
 
