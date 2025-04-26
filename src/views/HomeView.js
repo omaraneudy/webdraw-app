@@ -13,6 +13,9 @@ class HomeView {
         this.strokeButtons = document.querySelectorAll(".stroke-button");
         this.strokeColor = "#000000";
 
+        this.lineWidthButtons = document.querySelectorAll(".line-width-button");
+        this.lineWidth = 1;
+
         this.selectedOption;
 
         this.rectangle = new Rectangle();
@@ -130,7 +133,6 @@ class HomeView {
                 if (this.selectedOption === "select" && this.workingShape) {
                     this.rectangle.rectangles.forEach(rectangle => {
                         if (rectangle.id === this.workingShape.id) {
-                            rectangle.stroke = true;
                             rectangle.strokeColor = this.strokeColor;
                             return;
                         }
@@ -138,6 +140,29 @@ class HomeView {
                     this.clearCanvas();
                     this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx)
                 }
+            });
+        });
+
+        this.lineWidthButtons.forEach(lineWidthButton => {
+            lineWidthButton.addEventListener("click", () => {
+                this.lineWidth = 1;
+                if (lineWidthButton.id === "bold-width") {
+                    this.lineWidth = 4;
+                }
+                else if (lineWidthButton.id === "extra-bold-width") {
+                    this.lineWidth = 8;
+                }
+                if (this.selectedOption === "select" && this.workingShape) {
+                    this.rectangle.rectangles.forEach(rectangle => {
+                        if (rectangle.id === this.workingShape.id) {
+                            rectangle.lineWidth = this.lineWidth;
+                            return;
+                        }
+                    });
+                    this.clearCanvas();
+                    this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx)
+                }
+
             });
         });
     }
@@ -151,7 +176,7 @@ class HomeView {
                 let isFill = true;
                 if (this.fillColor === "#00000000") isFill = false;
 
-                this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, isFill, this.fillColor, this.strokeColor);
+                this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, isFill, this.fillColor, this.strokeColor, this.lineWidth);
 
                 this.rectangle.x = null;
                 this.rectangle.y = null;
@@ -213,6 +238,7 @@ class HomeView {
                     this.ctx.fillRect(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
                 }
                 this.ctx.strokeStyle = this.strokeColor;
+                this.ctx.lineWidth = this.lineWidth;
                 this.ctx.strokeRect(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
 
             }
@@ -229,6 +255,7 @@ class HomeView {
                     this.ctx.fillRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
                 }
                 this.ctx.strokeStyle = this.workingShape.strokeColor;
+                this.ctx.lineWidth = this.workingShape.lineWidth;
                 this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
                 
             }
@@ -244,6 +271,7 @@ class HomeView {
                     this.ctx.fillRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
                 }
                 this.ctx.strokeStyle = this.workingShape.strokeColor;
+                this.ctx.lineWidth = this.workingShape.lineWidth;
                 this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
                 
             }

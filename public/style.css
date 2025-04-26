@@ -45,12 +45,22 @@ canvas {
 
 }
 
+.line-width {
+    width: 50px;
+    height: 200px;
+    background-color: #ddd;
+}
+
 .stroke-button,
 .fill-button {
     width: 30px;
     height: 30px;
 }
 .fill-button > img {
+    width: 30px;
+    height: 30px;
+}
+.line-width-button {
     width: 30px;
     height: 30px;
 }
@@ -78,4 +88,28 @@ canvas {
 #transparent-stroke,
 #transparent-fill {
     background-color: #00000000;
+}
+
+.line-width-button {
+    justify-content: center;
+}
+
+
+#thin-width > div {
+    margin: auto;
+    background-color: black;
+    width: 10px;
+    height: 2px;
+}
+
+#bold-width > div {
+    background-color: black;
+    width: 10px;
+    height: 4px;
+}
+
+#extra-bold-width > div {
+    background-color: black;
+    width: 10px;
+    height: 8px;
 }
