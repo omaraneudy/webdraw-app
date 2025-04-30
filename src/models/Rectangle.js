@@ -1,5 +1,8 @@
 class Rectangle {
-    constructor() {
+    constructor(canvas, ctx) {
+
+        this.canvas = canvas;
+        this.ctx = ctx;
 
         this.id = 0;
         this.x = null;
@@ -12,6 +15,10 @@ class Rectangle {
 
         this.selectedPointX = null;
         this.selectedPointY = null;
+
+        this.fillColor = "#00000000";
+        this.strokeColor = "#000000";
+        this.lineWidth = 1;
 
         this.rectangles = [];
     }
@@ -27,7 +34,7 @@ class Rectangle {
     }
 
     addRectangle(x, y, width, height, fill = false, fillColor = '#ffffff00',
-         strokeColor = '#000000', lineWidth = 1, type = "rectangle") {
+        strokeColor = '#000000', lineWidth = 1, type = "rectangle") {
 
         if (width < 0 && height < 0) {
 
@@ -52,13 +59,17 @@ class Rectangle {
                     y,
                     width,
                     height,
-                    type, 
-                    fill, 
+                    type,
+                    fill,
                     fillColor,
-                    strokeColor, 
+                    strokeColor,
                     lineWidth
                 }
             );
+            this.x = null;
+            this.y = null;
+            this.width = null;
+            this.height = null;
         }
     }
 
@@ -165,18 +176,30 @@ class Rectangle {
         return { newPointX, newPointY, newWidth, newHeight };
     }
 
-    renderRectangles(rectangles, ctx, id = "") {
-        rectangles.forEach(rectangle => {
-            if (rectangle.id === id)
+    renderRectangles(workingShape = undefined, newPoints = undefined) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.rectangles.forEach(rectangle => {
+            if (workingShape && rectangle.id === workingShape.id)
                 return;
+            //this.drawShape(rectangle);
             if (rectangle.fill) {
-                ctx.fillStyle = rectangle.fillColor;
-                ctx.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                this.ctx.fillStyle = rectangle.fillColor;
+                this.ctx.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
             }
-            ctx.strokeStyle = rectangle.strokeColor;
-            ctx.lineWidth = rectangle.lineWidth;
-            ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            this.ctx.strokeStyle = rectangle.strokeColor;
+            this.ctx.lineWidth = rectangle.lineWidth;
+            this.ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         });
+        if (workingShape && newPoints) {
+            if (workingShape.fill) {
+                this.ctx.fillStyle = workingShape.fillColor;
+                this.ctx.fillRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
+            }
+            this.ctx.strokeStyle = workingShape.strokeColor;
+            this.ctx.lineWidth = workingShape.lineWidth;
+            this.ctx.strokeRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
+        }
+
     }
 
     findShape(selectedPointX, selectedPointY, border = true) {
@@ -223,37 +246,37 @@ class Rectangle {
         if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
             && selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
 
-            return {id: selectedRectangle.id, side: "top"};
+            return { id: selectedRectangle.id, side: "top" };
         }
 
         // Right
         if (selectedPointX > selectedRectangle.x + selectedRectangle.width - 10 && selectedPointX < selectedRectangle.x + selectedRectangle.width + 10 &&
             selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
-            return {id: selectedRectangle.id, side: "right"};
+            return { id: selectedRectangle.id, side: "right" };
         }
 
         // Bottom
         if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
             && selectedPointY > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
-            return {id: selectedRectangle.id, side: "bottom"};
+            return { id: selectedRectangle.id, side: "bottom" };
         }
 
         // Left
         if (selectedPointX > selectedRectangle.x - 10 && selectedPointX < selectedRectangle.x + 10 &&
             selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
-            return {id: selectedRectangle.id, side: "left"};
+            return { id: selectedRectangle.id, side: "left" };
         }
 
         // Center
         if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
             && selectedPointY > selectedRectangle.y && selectedPointY < selectedRectangle.y + selectedRectangle.height) {
-            return {id: selectedRectangle.id, side: "center"};
+            return { id: selectedRectangle.id, side: "center" };
         }
 
-        return {id: "", side: ""};
+        return { id: "", side: "" };
 
     }
 

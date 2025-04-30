@@ -18,7 +18,7 @@ class HomeView {
 
         this.selectedOption;
 
-        this.rectangle = new Rectangle();
+        this.rectangle = new Rectangle(this.canvas, this.ctx);
 
         this.creatingShape = false;
         this.selectingShape = false;
@@ -81,7 +81,6 @@ class HomeView {
                     if (this.workingShape && this.selectedShape && this.workingShape.id === this.selectedShape.id) {
 
                         let shapeSide = this.rectangle.detectArea(this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.selectedShape);
-
                         if (shapeSide.side === "center") {
                             this.selectMode = "move";
                         }
@@ -108,7 +107,6 @@ class HomeView {
 
         this.fillButtons.forEach(fillButton => {
             fillButton.addEventListener("click", e => {
-                console.log(this.rgbaToHex(getComputedStyle(fillButton).backgroundColor));
                 this.fillColor = this.rgbaToHex(getComputedStyle(fillButton).backgroundColor).toString();
                 
                 if (this.selectedOption === "select" && this.workingShape) {
@@ -119,16 +117,16 @@ class HomeView {
                             return;
                         }
                     });
-                    this.clearCanvas();
-                    this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx)
+
+                    this.rectangle.renderRectangles();
                 }
             });
         });
 
         this.strokeButtons.forEach(strokeButton => {
             strokeButton.addEventListener("click", e => {
-                console.log(this.rgbaToHex(getComputedStyle(strokeButton).backgroundColor));
                 this.strokeColor = this.rgbaToHex(getComputedStyle(strokeButton).backgroundColor).toString();
+                console.log("strokee colorrrr");
                 
                 if (this.selectedOption === "select" && this.workingShape) {
                     this.rectangle.rectangles.forEach(rectangle => {
@@ -137,8 +135,8 @@ class HomeView {
                             return;
                         }
                     });
-                    this.clearCanvas();
-                    this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx)
+
+                    this.rectangle.renderRectangles();
                 }
             });
         });
@@ -159,8 +157,8 @@ class HomeView {
                             return;
                         }
                     });
-                    this.clearCanvas();
-                    this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx)
+
+                    this.rectangle.renderRectangles();
                 }
 
             });
@@ -177,11 +175,6 @@ class HomeView {
                 if (this.fillColor === "#00000000") isFill = false;
 
                 this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, isFill, this.fillColor, this.strokeColor, this.lineWidth);
-
-                this.rectangle.x = null;
-                this.rectangle.y = null;
-                this.rectangle.width = null;
-                this.rectangle.height = null;
 
             }
             if (this.selectedOption === "select") {
@@ -230,9 +223,8 @@ class HomeView {
                 this.rectangle.width = e.offsetX - this.rectangle.x;
                 this.rectangle.height = e.offsetY - this.rectangle.y;
 
-                this.clearCanvas();
+                this.rectangle.renderRectangles();
 
-                this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx);
                 if (this.fillColor !== "#00000000") {
                     this.ctx.fillStyle = this.fillColor;
                     this.ctx.fillRect(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
@@ -246,40 +238,15 @@ class HomeView {
             if (this.workingShape && this.selectMode === "move") {
 
                 this.newPoints = this.rectangle.changePosition(e, this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.workingShape);
-                this.clearCanvas();
-                
-                this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx, this.workingShape.id);
-
-                if (this.workingShape.fill) {
-                    this.ctx.fillStyle = this.workingShape.fillColor;
-                    this.ctx.fillRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
-                }
-                this.ctx.strokeStyle = this.workingShape.strokeColor;
-                this.ctx.lineWidth = this.workingShape.lineWidth;
-                this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.workingShape.width, this.workingShape.height);
+                this.rectangle.renderRectangles(this.workingShape, this.newPoints);
                 
             }
             if (this.workingShape && this.selectMode === "changeSize") {
                 this.newPoints = this.rectangle.changeSize(e, this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.workingShape);
-                console.log(this.newPoints, this.workingShape, e);
-                this.clearCanvas();
-                
-                this.rectangle.renderRectangles(this.rectangle.rectangles, this.ctx, this.workingShape.id);
+                this.rectangle.renderRectangles(this.workingShape, this.newPoints);
 
-                if (this.workingShape.fill) {
-                    this.ctx.fillStyle = this.workingShape.fillColor;
-                    this.ctx.fillRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
-                }
-                this.ctx.strokeStyle = this.workingShape.strokeColor;
-                this.ctx.lineWidth = this.workingShape.lineWidth;
-                this.ctx.strokeRect(this.newPoints.newPointX, this.newPoints.newPointY, this.newPoints.newWidth, this.newPoints.newHeight);
-                
             }
         });
-    }
-
-    clearCanvas() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     rgbaToHex(rgba) {
