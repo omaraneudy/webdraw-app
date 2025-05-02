@@ -240,7 +240,7 @@ class Rectangle {
 
     }
 
-    detectArea(selectedPointX, selectedPointY, selectedRectangle) {
+    detectArea(selectedPointX, selectedPointY, selectedRectangle, corners = false) {
 
         // x - 10 && x + 10
         // y - 10 && y + 10
@@ -254,8 +254,38 @@ class Rectangle {
         // x - 10 && x + 10
         // y + height - 10 && y + height + 10
 
+        if (corners) {
+            // Top Left
+            if (selectedPointX > selectedRectangle.x - 10 && selectedPointX < selectedRectangle.x + 10 &&
+                selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
+
+                return { id: selectedRectangle.id, side: "top-left" };
+            }
+
+            // Top Right
+            if (selectedPointX > selectedRectangle.x + selectedRectangle.width - 10 && selectedPointX < selectedRectangle.x + selectedRectangle.width + 10 &&
+                selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
+
+                return { id: selectedRectangle.id, side: "top-right" };
+            }
+
+            // Bottom Right 
+
+            if (selectedPointX > selectedRectangle.x + selectedRectangle.width - 10 && selectedPointX < selectedRectangle.x + selectedRectangle.width + 10 &&
+                selectedPointY > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
+
+                return { id: selectedRectangle.id, side: "bottom-right" };
+            }
+
+            // Bottom Left
+            if (selectedPointX > selectedRectangle.x - 10 && selectedPointX < selectedRectangle.x + 10 &&
+                selectedPointY > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
+
+                return { id: selectedRectangle.id, side: "bottom-left" };
+            }
+        }
+        
         // Top
-
         if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
             && selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
 

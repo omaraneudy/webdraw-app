@@ -82,6 +82,9 @@ class HomeView {
                         shapeSide = this.rectangle.detectArea(this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.selectedShape);
 
                     }
+                    else {
+                        this.rectangle.renderRectangles();
+                    }
 
                     if (this.workingShape && this.selectedShape && this.selectedShape.id === this.workingShape.id) {
 
@@ -200,8 +203,6 @@ class HomeView {
                     this.workingShape.y = this.newPoints.newPointY;
                     this.workingShape.width = this.newPoints.newWidth;
                     this.workingShape.height = this.newPoints.newHeight;
-                    //this.workingShape.fillColor = this.fillColor;
-
 
                     this.rectangle.rectangles.forEach(rectangle => {
                         if (rectangle.id === this.workingShape.id) {
@@ -223,9 +224,21 @@ class HomeView {
             this.detectedShape = this.rectangle.findShape(e.offsetX, e.offsetY);
             this.canvas.style.cursor = "default";
             if (this.detectedShape && this.selectedOption === "select") {
-                let shapeSide = this.rectangle.detectArea(e.offsetX, e.offsetY, this.detectedShape);
+                let shapeSide = this.rectangle.detectArea(e.offsetX, e.offsetY, this.detectedShape, true);
                 
-                if (shapeSide.side === "top" && this.workingShape && shapeSide.id === this.workingShape.id){
+                if (shapeSide.side === "top-left" && this.workingShape && shapeSide.id === this.workingShape.id){
+                    this.canvas.style.cursor = "nw-resize";
+                }
+                else if (shapeSide.side === "top-right" && this.workingShape && shapeSide.id === this.workingShape.id) {
+                    this.canvas.style.cursor = "ne-resize";
+                }
+                else if (shapeSide.side === "bottom-right" && this.workingShape && shapeSide.id === this.workingShape.id) {
+                    this.canvas.style.cursor = "se-resize";
+                }
+                else if (shapeSide.side === "bottom-left" && this.workingShape && shapeSide.id === this.workingShape.id) {
+                    this.canvas.style.cursor = "sw-resize";
+                }
+                else if (shapeSide.side === "top" && this.workingShape && shapeSide.id === this.workingShape.id){
                     this.canvas.style.cursor = "n-resize";
                 }
                 else if (shapeSide.side === "right" && this.workingShape && shapeSide.id === this.workingShape.id) {
