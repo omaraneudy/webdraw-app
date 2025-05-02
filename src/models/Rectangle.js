@@ -88,6 +88,7 @@ class Rectangle {
             newPointY = e.offsetY;
             newWidth = (selectedPointX - e.offsetX) + selectedRectangle.width;
             newHeight = (selectedPointY - e.offsetY) + selectedRectangle.height;
+            this.canvas.style.cursor = "nw-resize";
 
             return { newPointX, newPointY, newWidth, newHeight };
         }
@@ -99,6 +100,7 @@ class Rectangle {
             newPointY = e.offsetY;
             newWidth = (e.offsetX - selectedPointX) + selectedRectangle.width;
             newHeight = (selectedPointY - e.offsetY) + selectedRectangle.height;
+            this.canvas.style.cursor = "ne-resize";
 
             return { newPointX, newPointY, newWidth, newHeight };
 
@@ -111,6 +113,7 @@ class Rectangle {
 
             newWidth = (e.offsetX - selectedPointX) + selectedRectangle.width;
             newHeight = (e.offsetY - selectedPointY) + selectedRectangle.height;
+            this.canvas.style.cursor = "se-resize";
 
             return { newPointX, newPointY, newWidth, newHeight };
         }
@@ -122,6 +125,7 @@ class Rectangle {
             newPointX = e.offsetX;
             newWidth = (selectedPointX - e.offsetX) + selectedRectangle.width;
             newHeight = (e.offsetY - selectedPointY) + selectedRectangle.height;
+            this.canvas.style.cursor = "sw-resize";
 
             return { newPointX, newPointY, newWidth, newHeight };
         }
@@ -132,6 +136,7 @@ class Rectangle {
 
             newPointY = e.offsetY;
             newHeight = (selectedPointY - e.offsetY) + selectedRectangle.height;
+            this.canvas.style.cursor = "n-resize";
 
             return { newPointX, newPointY, newWidth, newHeight };
         }
@@ -141,6 +146,7 @@ class Rectangle {
             selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
             newWidth = (e.offsetX - selectedPointX) + selectedRectangle.width;
+            this.canvas.style.cursor = "e-resize";
 
             return { newPointX, newPointY, newWidth, newHeight };
         }
@@ -150,6 +156,7 @@ class Rectangle {
             && selectedPointY > selectedRectangle.y + selectedRectangle.height - 10 && selectedPointY < selectedRectangle.y + selectedRectangle.height + 10) {
 
             newHeight = (e.offsetY - selectedPointY) + selectedRectangle.height;
+            this.canvas.style.cursor = "s-resize";
 
             return { newPointX, newPointY, newWidth, newHeight };
         }
@@ -160,6 +167,7 @@ class Rectangle {
 
             newPointX = e.offsetX;
             newWidth = (selectedPointX - e.offsetX) + selectedRectangle.width;
+            this.canvas.style.cursor = "w-resize";
 
             return { newPointX, newPointY, newWidth, newHeight };
         }
@@ -173,6 +181,7 @@ class Rectangle {
         let newWidth = selectedRectangle.width;
         let newHeight = selectedRectangle.height;
 
+        this.canvas.style.cursor = "move";
         return { newPointX, newPointY, newWidth, newHeight };
     }
 
@@ -181,7 +190,6 @@ class Rectangle {
         this.rectangles.forEach(rectangle => {
             if (workingShape && rectangle.id === workingShape.id)
                 return;
-            //this.drawShape(rectangle);
             if (rectangle.fill) {
                 this.ctx.fillStyle = rectangle.fillColor;
                 this.ctx.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
@@ -198,32 +206,37 @@ class Rectangle {
             this.ctx.strokeStyle = workingShape.strokeColor;
             this.ctx.lineWidth = workingShape.lineWidth;
             this.ctx.strokeRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
+            this.selectionRectangle(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
         }
 
     }
 
     findShape(selectedPointX, selectedPointY, border = true) {
-        if (border)
-            return this.rectangles.find(rectangle =>
-                selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.width + rectangle.x + 10
-                && selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + 10 ||
+        // if (border)
+        return this.rectangles.find(rectangle =>
+            selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.width + rectangle.x + 10
+            && selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + 10 ||
 
-                // Right
-                selectedPointX > rectangle.x + rectangle.width - 10 && selectedPointX < rectangle.x + rectangle.width + 10 &&
-                selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + rectangle.height + 10 ||
+            // Right
+            selectedPointX > rectangle.x + rectangle.width - 10 && selectedPointX < rectangle.x + rectangle.width + 10 &&
+            selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + rectangle.height + 10 ||
 
-                // Bottom
-                selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.width + rectangle.x + 10
-                && selectedPointY > rectangle.y + rectangle.height - 10 && selectedPointY < rectangle.y + rectangle.height + 10 ||
+            // Bottom
+            selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.width + rectangle.x + 10
+            && selectedPointY > rectangle.y + rectangle.height - 10 && selectedPointY < rectangle.y + rectangle.height + 10 ||
 
-                // Left
-                selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.x + 10 &&
-                selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + rectangle.height + 10
+            // Left
+            selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.x + 10 &&
+            selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + rectangle.height + 10 ||
 
-            );
+            // Center
+            selectedPointX > rectangle.x && selectedPointX < rectangle.width + rectangle.x
+            && selectedPointY > rectangle.y && selectedPointY < rectangle.y + rectangle.height
 
-        return this.rectangles.find(rectangle => selectedPointX > rectangle.x && selectedPointX < rectangle.width + rectangle.x
-            && selectedPointY > rectangle.y && selectedPointY < rectangle.y + rectangle.height);
+        );
+
+        // return this.rectangles.find(rectangle => selectedPointX > rectangle.x && selectedPointX < rectangle.width + rectangle.x
+        //     && selectedPointY > rectangle.y && selectedPointY < rectangle.y + rectangle.height);
 
     }
 
@@ -280,7 +293,34 @@ class Rectangle {
 
     }
 
+    selectionRectangle(x, y, width, height) {
 
+        if (width < 0) {
+            x += width;
+            width = Math.abs(width);
+        }
+        if (height < 0) {
+            y += height;
+            height = Math.abs(height);
+        }
+
+        this.ctx.lineWidth = 0.5;
+        this.ctx.strokeStyle = '#090cd9';
+        this.ctx.strokeRect(x - 5, y - 5, width + 10, height + 10);
+        this.ctx.fillStyle = 'white';
+
+        this.ctx.fillRect(x - 8, y - 8, 7, 7);
+        this.ctx.strokeRect(x - 8, y - 8, 7, 7);
+
+        this.ctx.fillRect(x + width + 2, y - 8, 7, 7);
+        this.ctx.strokeRect(x + width + 2, y - 8, 7, 7);
+
+        this.ctx.fillRect(x + width + 2, y + height + 2, 7, 7);
+        this.ctx.strokeRect(x + width + 2, y + height + 2, 7, 7);
+
+        this.ctx.fillRect(x - 8, y + height + 2, 7, 7);
+        this.ctx.strokeRect(x - 8, y + height + 2, 7, 7);
+    }
 }
 
 export default Rectangle;

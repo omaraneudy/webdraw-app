@@ -68,19 +68,23 @@ class HomeView {
     }
 
     mouseDown() {
-        document.addEventListener("mousedown", e => {
+        canvas.addEventListener("mousedown", e => {
             switch (this.selectedOption) {
                 case "select":
                     this.rectangle.selectedPointX = e.offsetX;
                     this.rectangle.selectedPointY = e.offsetY;
 
+                    this.selectMode = "move";
+                    let shapeSide;
+
+                    this.selectedShape = this.rectangle.findShape(this.rectangle.selectedPointX, this.rectangle.selectedPointY);
                     if (this.selectedShape) {
-                        this.workingShape = this.selectedShape;
+                        shapeSide = this.rectangle.detectArea(this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.selectedShape);
+
                     }
 
-                    if (this.workingShape && this.selectedShape && this.workingShape.id === this.selectedShape.id) {
+                    if (this.workingShape && this.selectedShape && this.selectedShape.id === this.workingShape.id) {
 
-                        let shapeSide = this.rectangle.detectArea(this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.selectedShape);
                         if (shapeSide.side === "center") {
                             this.selectMode = "move";
                         }
@@ -89,11 +93,8 @@ class HomeView {
                             this.selectMode = "changeSize";
 
                         }
-
                     }
-
-                    this.selectedShape = this.rectangle.findShape(this.rectangle.selectedPointX, this.rectangle.selectedPointY);
-
+                    this.workingShape = this.selectedShape;
                     break;
                 case "rectangle":
                     this.rectangle.startPointX = e.offsetX;
@@ -104,11 +105,10 @@ class HomeView {
                     break;
             }
         });
-
         this.fillButtons.forEach(fillButton => {
             fillButton.addEventListener("click", e => {
                 this.fillColor = this.rgbaToHex(getComputedStyle(fillButton).backgroundColor).toString();
-                
+
                 if (this.selectedOption === "select" && this.workingShape) {
                     this.rectangle.rectangles.forEach(rectangle => {
                         if (rectangle.id === this.workingShape.id) {
@@ -119,6 +119,7 @@ class HomeView {
                     });
 
                     this.rectangle.renderRectangles();
+                    this.rectangle.selectionRectangle(this.workingShape.x, this.workingShape.y, this.workingShape.width, this.workingShape.height);
                 }
             });
         });
@@ -127,7 +128,7 @@ class HomeView {
             strokeButton.addEventListener("click", e => {
                 this.strokeColor = this.rgbaToHex(getComputedStyle(strokeButton).backgroundColor).toString();
                 console.log("strokee colorrrr");
-                
+
                 if (this.selectedOption === "select" && this.workingShape) {
                     this.rectangle.rectangles.forEach(rectangle => {
                         if (rectangle.id === this.workingShape.id) {
@@ -137,6 +138,7 @@ class HomeView {
                     });
 
                     this.rectangle.renderRectangles();
+                    this.rectangle.selectionRectangle(this.workingShape.x, this.workingShape.y, this.workingShape.width, this.workingShape.height);
                 }
             });
         });
@@ -159,10 +161,12 @@ class HomeView {
                     });
 
                     this.rectangle.renderRectangles();
+                    this.rectangle.selectionRectangle(this.workingShape.x, this.workingShape.y, this.workingShape.width, this.workingShape.height);
                 }
 
             });
         });
+
     }
 
     mouseUp() {
@@ -216,8 +220,32 @@ class HomeView {
     mouseMove() {
         document.addEventListener("mousemove", e => {
 
+            this.detectedShape = this.rectangle.findShape(e.offsetX, e.offsetY);
+            this.canvas.style.cursor = "default";
+            if (this.detectedShape && this.selectedOption === "select") {
+                let shapeSide = this.rectangle.detectArea(e.offsetX, e.offsetY, this.detectedShape);
+                
+                if (shapeSide.side === "top" && this.workingShape && shapeSide.id === this.workingShape.id){
+                    this.canvas.style.cursor = "n-resize";
+                }
+                else if (shapeSide.side === "right" && this.workingShape && shapeSide.id === this.workingShape.id) {
+                    this.canvas.style.cursor = "e-resize";
+                }
+                else if (shapeSide.side === "bottom" && this.workingShape && shapeSide.id === this.workingShape.id) {
+                    this.canvas.style.cursor = "s-resize";
+                }
+                else if (shapeSide.side === "left" && this.workingShape && shapeSide.id === this.workingShape.id) {
+                    this.canvas.style.cursor = "w-resize";
+                }
+                else if (shapeSide.side === "center") {
+                    this.canvas.style.cursor = "move";
+                }
+                else {
+                    this.canvas.style.cursor = "default";
+                }
+            }
             if (this.creatingShape) {
-
+                
                 this.rectangle.x = this.rectangle.startPointX;
                 this.rectangle.y = this.rectangle.startPointY;
                 this.rectangle.width = e.offsetX - this.rectangle.x;
@@ -236,10 +264,9 @@ class HomeView {
             }
 
             if (this.workingShape && this.selectMode === "move") {
-
                 this.newPoints = this.rectangle.changePosition(e, this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.workingShape);
                 this.rectangle.renderRectangles(this.workingShape, this.newPoints);
-                
+
             }
             if (this.workingShape && this.selectMode === "changeSize") {
                 this.newPoints = this.rectangle.changeSize(e, this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.workingShape);
@@ -251,21 +278,21 @@ class HomeView {
 
     rgbaToHex(rgba) {
         const result = rgba.match(/\d+(\.\d+)?/g); // Extrae números incluyendo decimales
-    
+
         if (!result) return "#000000";
-    
+
         const r = parseInt(result[0]).toString(16).padStart(2, '0');
         const g = parseInt(result[1]).toString(16).padStart(2, '0');
         const b = parseInt(result[2]).toString(16).padStart(2, '0');
-    
+
         // Si hay un valor alfa (transparencia), lo convertimos también
         const a = result[3] !== undefined
             ? Math.round(parseFloat(result[3]) * 255).toString(16).padStart(2, '0')
             : "ff"; // Si no hay alfa, se asume totalmente opaco
-    
+
         return `#${r}${g}${b}${a}`;
     }
-  
+
 
 }
 
