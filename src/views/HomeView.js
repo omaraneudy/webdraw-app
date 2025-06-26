@@ -80,7 +80,8 @@ class HomeView {
                     this.selectedShape = this.rectangle.findShape(this.rectangle.selectedPointX, this.rectangle.selectedPointY);
                     if (this.selectedShape) {
                         shapeSide = this.rectangle.detectArea(this.rectangle.selectedPointX, this.rectangle.selectedPointY, this.selectedShape);
-
+                        this.rectangle.renderRectangles();
+                        this.rectangle.selectionRectangle(this.selectedShape.x, this.selectedShape.y, this.selectedShape.width, this.selectedShape.height);
                     }
                     else {
                         this.rectangle.renderRectangles();
