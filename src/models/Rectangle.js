@@ -188,8 +188,18 @@ class Rectangle {
     renderRectangles(workingShape = undefined, newPoints = undefined) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.rectangles.forEach(rectangle => {
-            if (workingShape && rectangle.id === workingShape.id)
+            if (workingShape && rectangle.id === workingShape.id) {
+                if (workingShape && newPoints) {
+                    if (workingShape.fill) {
+                        this.ctx.fillStyle = workingShape.fillColor;
+                        this.ctx.fillRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
+                    }
+                    this.ctx.strokeStyle = workingShape.strokeColor;
+                    this.ctx.lineWidth = workingShape.lineWidth;
+                    this.ctx.strokeRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
+                }
                 return;
+            }
             if (rectangle.fill) {
                 this.ctx.fillStyle = rectangle.fillColor;
                 this.ctx.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
@@ -199,21 +209,13 @@ class Rectangle {
             this.ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         });
         if (workingShape && newPoints) {
-            if (workingShape.fill) {
-                this.ctx.fillStyle = workingShape.fillColor;
-                this.ctx.fillRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
-            }
-            this.ctx.strokeStyle = workingShape.strokeColor;
-            this.ctx.lineWidth = workingShape.lineWidth;
-            this.ctx.strokeRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
             this.selectionRectangle(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
         }
-
     }
 
     findShape(selectedPointX, selectedPointY, border = true) {
         // if (border)
-        return this.rectangles.find(rectangle =>
+        return this.rectangles.findLast(rectangle =>
             selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.width + rectangle.x + 10
             && selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + 10 ||
 
@@ -284,7 +286,7 @@ class Rectangle {
                 return { id: selectedRectangle.id, side: "bottom-left" };
             }
         }
-        
+
         // Top
         if (selectedPointX > selectedRectangle.x && selectedPointX < selectedRectangle.width + selectedRectangle.x
             && selectedPointY > selectedRectangle.y - 10 && selectedPointY < selectedRectangle.y + 10) {
