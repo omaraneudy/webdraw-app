@@ -16,6 +16,10 @@ class HomeView {
         this.lineWidthButtons = document.querySelectorAll(".line-width-button");
         this.lineWidth = 1;
 
+        this.layerButtons = document.querySelectorAll(".layer-button");
+        this.actualLayer = 0;
+        this.newLayer = 0;
+
         this.selectedOption;
 
         this.rectangle = new Rectangle(this.canvas, this.ctx);
@@ -171,6 +175,27 @@ class HomeView {
             });
         });
 
+        this.layerButtons.forEach(layerButton => {
+            layerButton.addEventListener("click", () => {
+                if (this.selectedOption === "select" && this.workingShape) {
+                    this.actualLayer = this.rectangle.rectangles.indexOf(this.workingShape);
+                    if (layerButton.id === "front-layer") {
+                        if (this.actualLayer < this.rectangle.rectangles.length - 1) {
+                            this.newLayer = this.actualLayer + 1;
+                        }
+                    }
+                    else if (layerButton.id === "back-layer") {
+                        if (this.actualLayer > 0) {
+                            this.newLayer = this.actualLayer - 1;
+                        }
+                    }
+                    this.rectangle.rectangles[this.actualLayer] = this.rectangle.rectangles[this.newLayer];
+                    this.rectangle.rectangles[this.newLayer] = this.workingShape;
+                    this.rectangle.renderRectangles();
+                    this.rectangle.selectionRectangle(this.workingShape.x, this.workingShape.y, this.workingShape.width, this.workingShape.height);    
+                }
+            });
+        });
     }
 
     mouseUp() {
@@ -226,8 +251,8 @@ class HomeView {
             this.canvas.style.cursor = "default";
             if (this.detectedShape && this.selectedOption === "select") {
                 let shapeSide = this.rectangle.detectArea(e.offsetX, e.offsetY, this.detectedShape, true);
-                
-                if (shapeSide.side === "top-left" && this.workingShape && shapeSide.id === this.workingShape.id){
+
+                if (shapeSide.side === "top-left" && this.workingShape && shapeSide.id === this.workingShape.id) {
                     this.canvas.style.cursor = "nw-resize";
                 }
                 else if (shapeSide.side === "top-right" && this.workingShape && shapeSide.id === this.workingShape.id) {
@@ -239,7 +264,7 @@ class HomeView {
                 else if (shapeSide.side === "bottom-left" && this.workingShape && shapeSide.id === this.workingShape.id) {
                     this.canvas.style.cursor = "sw-resize";
                 }
-                else if (shapeSide.side === "top" && this.workingShape && shapeSide.id === this.workingShape.id){
+                else if (shapeSide.side === "top" && this.workingShape && shapeSide.id === this.workingShape.id) {
                     this.canvas.style.cursor = "n-resize";
                 }
                 else if (shapeSide.side === "right" && this.workingShape && shapeSide.id === this.workingShape.id) {
@@ -259,7 +284,7 @@ class HomeView {
                 }
             }
             if (this.creatingShape) {
-                
+
                 this.rectangle.x = this.rectangle.startPointX;
                 this.rectangle.y = this.rectangle.startPointY;
                 this.rectangle.width = e.offsetX - this.rectangle.x;
