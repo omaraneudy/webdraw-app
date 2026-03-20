@@ -6,26 +6,6 @@ import HomeView from "../views/HomeView copy.js";
 class HomeController {
     constructor() {
 
-        //this.canvas = canvas;
-        //this.ctx = ctx;
-
-        this.x = null;
-        this.y = null;
-        this.width = null;
-        this.height = null;
-
-        this.startPointX = 0;
-        this.startPointY = 0;
-
-        this.selectedPointX = null;
-        this.selectedPointY = null;
-
-        this.fillColor = "#00000000";
-        this.strokeColor = "#000000";
-        this.lineWidth = 1;
-
-        this.rectangles = [];
-
         this.model = new HomeModel();
         this.view = new HomeView();
 
@@ -38,26 +18,12 @@ class HomeController {
         this.view.mouseMove(this.findShape.bind(this), this.detectArea.bind(this), this.changeSize.bind(this), this.changePosition.bind(this));
         //this.view.mouseUp();
         this.view.mouseUp(this.addRectangle.bind(this), this.updateShape.bind(this));
-        //this.view.guardarprueba(this.guardarpruebacontroller.bind(this));
 
     }
 
     setMaxId() {
         //return this.model.getShapes().filter((shape))
         return Math.max(...this.model.getShapes().map(o => o.id))
-    }
-
-    guardarpruebacontroller(variable) {
-        this.model.guardarpruebamodel(variable);
-    }
-
-    getShapes() {
-        console.log("get shapes " + this.rectangles);
-        return this.rectangles;
-    }
-
-    setShapes(shapes) {
-        this.rectangles = shapes;
     }
 
     createRectangle(x, y, width, height) {
@@ -72,16 +38,6 @@ class HomeController {
 
     updateShape(newShape, layer = undefined) {
 
-        // if (fill){
-        //     newShape.fill = fill;
-        //     newShape.fillColor = fillColor;
-        // }
-        // if (strokeColor) {
-        //     newShape.strokeColor = strokeColor;
-        // }
-        // if (lineWidth) {
-        //     newShape.lineWidth = lineWidth;
-        // }
         let actualLayer = this.model.getShapes().indexOf(newShape);
         let newLayer = undefined;
         if (layer) {
@@ -124,21 +80,6 @@ class HomeController {
                 this.id = 0;
             }
 
-            // this.rectangles.push(
-            //     {
-            //         id: this.id,
-            //         x,
-            //         y,
-            //         width,
-            //         height,
-            //         type,
-            //         fill,
-            //         fillColor,
-            //         strokeColor,
-            //         lineWidth
-            //     }
-            // );
-
             this.model.addShape(
                 {
                     id: this.id,
@@ -153,13 +94,6 @@ class HomeController {
                     lineWidth
                 }
             );
-
-            this.x = null;
-            this.y = null;
-            this.width = null;
-            this.height = null;
-
-            //this.view.getShapes(this.model.getShapes());
         }
     }
 
@@ -277,36 +211,31 @@ class HomeController {
         return { newPointX, newPointY, newWidth, newHeight };
     }
 
-    // renderRectangles(workingShape = undefined, newPoints = undefined) {
-    //     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    //     this.rectangles.forEach(rectangle => {
-    //         if (workingShape && rectangle.id === workingShape.id) {
-    //             if (workingShape && newPoints) {
-    //                 if (workingShape.fill) {
-    //                     this.ctx.fillStyle = workingShape.fillColor;
-    //                     this.ctx.fillRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
-    //                 }
-    //                 this.ctx.strokeStyle = workingShape.strokeColor;
-    //                 this.ctx.lineWidth = workingShape.lineWidth;
-    //                 this.ctx.strokeRect(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
-    //             }
-    //             return;
-    //         }
-    //         if (rectangle.fill) {
-    //             this.ctx.fillStyle = rectangle.fillColor;
-    //             this.ctx.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-    //         }
-    //         this.ctx.strokeStyle = rectangle.strokeColor;
-    //         this.ctx.lineWidth = rectangle.lineWidth;
-    //         this.ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-    //     });
-    //     if (workingShape && newPoints) {
-    //         this.selectionRectangle(newPoints.newPointX, newPoints.newPointY, newPoints.newWidth, newPoints.newHeight);
-    //     }
-    // }
-
-    findShape(selectedPointX, selectedPointY) {
+    findShape(selectedPointX, selectedPointY, workingShape = undefined) {
         // if (border)
+        if (workingShape) {
+            if (selectedPointX > workingShape.x - 10 && selectedPointX < workingShape.width + workingShape.x + 10
+            && selectedPointY > workingShape.y - 10 && selectedPointY < workingShape.y + 10 ||
+
+            // Right
+            selectedPointX > workingShape.x + workingShape.width - 10 && selectedPointX < workingShape.x + workingShape.width + 10 &&
+            selectedPointY > workingShape.y - 10 && selectedPointY < workingShape.y + workingShape.height + 10 ||
+
+            // Bottom
+            selectedPointX > workingShape.x - 10 && selectedPointX < workingShape.width + workingShape.x + 10
+            && selectedPointY > workingShape.y + workingShape.height - 10 && selectedPointY < workingShape.y + workingShape.height + 10 ||
+
+            // Left
+            selectedPointX > workingShape.x - 10 && selectedPointX < workingShape.x + 10 &&
+            selectedPointY > workingShape.y - 10 && selectedPointY < workingShape.y + workingShape.height + 10 ||
+
+            // Center
+            selectedPointX > workingShape.x && selectedPointX < workingShape.width + workingShape.x
+            && selectedPointY > workingShape.y && selectedPointY < workingShape.y + workingShape.height)
+            {
+                return workingShape;
+            }
+        }
         return this.model.getShapes().findLast(rectangle =>
             selectedPointX > rectangle.x - 10 && selectedPointX < rectangle.width + rectangle.x + 10
             && selectedPointY > rectangle.y - 10 && selectedPointY < rectangle.y + 10 ||
@@ -416,35 +345,6 @@ class HomeController {
         return { id: "", side: "" };
 
     }
-
-    // selectionRectangle(x, y, width, height) {
-
-    //     if (width < 0) {
-    //         x += width;
-    //         width = Math.abs(width);
-    //     }
-    //     if (height < 0) {
-    //         y += height;
-    //         height = Math.abs(height);
-    //     }
-
-    //     this.ctx.lineWidth = 0.5;
-    //     this.ctx.strokeStyle = '#090cd9';
-    //     this.ctx.strokeRect(x - 5, y - 5, width + 10, height + 10);
-    //     this.ctx.fillStyle = 'white';
-
-    //     this.ctx.fillRect(x - 8, y - 8, 7, 7);
-    //     this.ctx.strokeRect(x - 8, y - 8, 7, 7);
-
-    //     this.ctx.fillRect(x + width + 2, y - 8, 7, 7);
-    //     this.ctx.strokeRect(x + width + 2, y - 8, 7, 7);
-
-    //     this.ctx.fillRect(x + width + 2, y + height + 2, 7, 7);
-    //     this.ctx.strokeRect(x + width + 2, y + height + 2, 7, 7);
-
-    //     this.ctx.fillRect(x - 8, y + height + 2, 7, 7);
-    //     this.ctx.strokeRect(x - 8, y + height + 2, 7, 7);
-    // }
 
 }
 

@@ -1,3 +1,5 @@
+//https://gist.github.com/robnyman/1875132 -- guardar imagen
+
 import Rectangle from "../models/Rectangle.js";
 class HomeView {
     constructor() {
@@ -54,10 +56,6 @@ class HomeView {
 
     }
 
-    // getShapes(shapes) {
-    //     this.rectangle = shapes;
-    // }
-
     getShapes(shapes) {
         this.shapes = shapes;
     }
@@ -108,7 +106,7 @@ class HomeView {
                     this.selectMode = "move";
                     let shapeSide;
 
-                    this.selectedShape = findShapeHandler(this.selectedPointX, this.selectedPointY);
+                    this.selectedShape = findShapeHandler(this.selectedPointX, this.selectedPointY, this.workingShape);
                     if (this.selectedShape) {
                         shapeSide = detectAreaHandler(this.selectedPointX, this.selectedPointY, this.selectedShape);
                         this.renderRectangles();
@@ -145,13 +143,6 @@ class HomeView {
                 this.fillColor = this.rgbaToHex(getComputedStyle(fillButton).backgroundColor).toString();
 
                 if (this.selectedOption === "select" && this.workingShape) {
-                    // this.getShapes.forEach(rectangle => {
-                    //     if (rectangle.id === this.workingShape.id) {
-                    //         rectangle.fill = true;
-                    //         rectangle.fillColor = this.fillColor;
-                    //         return;
-                    //     }
-                    // });
 
                     newShape = this.workingShape;
                     newShape.fill = true;
@@ -171,13 +162,7 @@ class HomeView {
                 console.log("strokee colorrrr");
 
                 if (this.selectedOption === "select" && this.workingShape) {
-                    // this.getShapes.forEach(rectangle => {
-                    //     if (rectangle.id === this.workingShape.id) {
-                    //         rectangle.strokeColor = this.strokeColor;
-                    //         return;
-                    //     }
-                    // });
-                    
+
                     newShape = this.workingShape;
                     newShape.strokeColor = this.strokeColor;
                     updateShapeHandler(newShape);
@@ -199,12 +184,6 @@ class HomeView {
                     this.lineWidth = 8;
                 }
                 if (this.selectedOption === "select" && this.workingShape) {
-                    // this.rectangle.rectangles.forEach(rectangle => {
-                    //     if (rectangle.id === this.workingShape.id) {
-                    //         rectangle.lineWidth = this.lineWidth;
-                    //         return;
-                    //     }
-                    // });
 
                     newShape = this.workingShape;
                     newShape.lineWidth = this.lineWidth;
@@ -221,41 +200,15 @@ class HomeView {
         this.layerButtons.forEach(layerButton => {
             layerButton.addEventListener("click", () => {
                 if (this.selectedOption === "select" && this.workingShape) {
+
                     this.actualLayer = this.shapes.indexOf(this.workingShape);
-                    // if (layerButton.id === "front-layer") {
-                    //     if (this.actualLayer < this.rectangle.rectangles.length - 1) {
-                    //         this.newLayer = this.actualLayer + 1;
-                    //     }
-                    // }
-                    // else if (layerButton.id === "back-layer") {
-                    //     if (this.actualLayer > 0) {
-                    //         this.newLayer = this.actualLayer - 1;
-                    //     }
-                    // }
-                    // this.rectangle.rectangles[this.actualLayer] = this.rectangle.rectangles[this.newLayer];
-                    // this.rectangle.rectangles[this.newLayer] = this.workingShape;
                     updateShapeHandler(this.workingShape, layerButton.id);
                     this.renderRectangles();
                     this.selectionRectangle(this.workingShape.x, this.workingShape.y, this.workingShape.width, this.workingShape.height);
+
                 }
             });
         });
-    }
-
-    addShape(handler) {
-        handler(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, isFill, this.fillColor, this.strokeColor, this.lineWidth);
-    }
-
-    addShape(handler) {
-        handler(this.x, this.y, this.width, this.height, isFill, this.fillColor, this.strokeColor, this.lineWidth);
-    }
-
-    // guardarprueba(handler) {
-    //     handler(this.vista);
-    // }
-
-    guardarprueba() {
-        return this.vista;
     }
 
     mouseUp(addShapeHandler, updateShapeHandler) {
@@ -266,14 +219,11 @@ class HomeView {
 
                 let isFill = true;
                 if (this.fillColor === "#00000000") isFill = false;
-                this.vista = "vista desde mouseup";
-                //this.rectangle.addRectangle(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height, isFill, this.fillColor, this.strokeColor, this.lineWidth);
                 addShapeHandler(this.x, this.y, this.width, this.height, isFill, this.fillColor, this.strokeColor, this.lineWidth);
                 this.x = null;
                 this.y = null;
                 this.width = null;
                 this.height = null;
-                //addShapeHandler(this.vista);
 
             }
             if (this.selectedOption === "select") {
@@ -296,12 +246,6 @@ class HomeView {
                     this.workingShape.width = this.newPoints.newWidth;
                     this.workingShape.height = this.newPoints.newHeight;
 
-                    // this.shapes.forEach(rectangle => {
-                    //     if (rectangle.id === this.workingShape.id) {
-                    //         rectangle = this.workingShape;
-                    //         return;
-                    //     }
-                    // });
                     updateShapeHandler(this.workingShape);
 
                     this.newPoints = undefined;
@@ -317,8 +261,16 @@ class HomeView {
             this.detectedShape = findShapeHandler(e.offsetX, e.offsetY);
             this.canvas.style.cursor = "default";
             if (this.detectedShape && this.selectedOption === "select") {
-                let shapeSide = detectAreaHandler(e.offsetX, e.offsetY, this.detectedShape, true);
 
+                let shapeSide = {side: ""};//= detectAreaHandler(e.offsetX, e.offsetY, this.detectedShape, true);
+                if (this.workingShape) {
+                    shapeSide = detectAreaHandler(e.offsetX, e.offsetY, this.workingShape, true);
+                }
+                if (shapeSide.side === "") {
+                    shapeSide = detectAreaHandler(e.offsetX, e.offsetY, this.detectedShape, true);
+                    
+                }
+                
                 if (shapeSide.side === "top-left" && this.workingShape && shapeSide.id === this.workingShape.id) {
                     this.canvas.style.cursor = "nw-resize";
                 }
