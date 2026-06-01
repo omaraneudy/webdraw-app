@@ -22,6 +22,8 @@ class HomeView {
         this.actualLayer = 0;
         this.newLayer = 0;
 
+        this.saveImage = document.getElementById("save-image");
+
         this.selectedOption;
 
         //this.rectangle = new Rectangle(this.canvas, this.ctx);
@@ -62,6 +64,37 @@ class HomeView {
 
     sayHello() {
         console.log(this.shapes);
+    }
+
+    options() {
+        this.saveImage.addEventListener("click", e => {
+            var canvas = document.getElementsByTagName("canvas");
+            // canvas context
+            var context = canvas[0].getContext("2d");
+            // store the current globalCompositeOperation
+            var compositeOperation = context.globalCompositeOperation;
+            // set to draw behind current content
+            context.globalCompositeOperation = "destination-over";
+            //set background color
+            context.fillStyle = "#FFFFFF";
+            // draw background/rectangle on entire canvas
+            context.fillRect(0, 0, canvas[0].width, canvas[0].height);
+
+            var tempCanvas = document.createElement("canvas"),
+                tCtx = tempCanvas.getContext("2d");
+
+            tempCanvas.width = canvas[0].width;
+            tempCanvas.height = canvas[0].height;
+
+            tCtx.drawImage(canvas[0], 0, 0);
+
+            let imagenPrueba = tempCanvas.toDataURL("image/png");
+            console.log(imagenPrueba);
+            this.saveImage.download = 'imagenPrueba.png';
+            this.saveImage.href = imagenPrueba;
+            context.globalCompositeOperation = "source-over";
+            
+        })
     }
 
     detectShapeButton() {
@@ -262,15 +295,15 @@ class HomeView {
             this.canvas.style.cursor = "default";
             if (this.detectedShape && this.selectedOption === "select") {
 
-                let shapeSide = {side: ""};//= detectAreaHandler(e.offsetX, e.offsetY, this.detectedShape, true);
+                let shapeSide = { side: "" };//= detectAreaHandler(e.offsetX, e.offsetY, this.detectedShape, true);
                 if (this.workingShape) {
                     shapeSide = detectAreaHandler(e.offsetX, e.offsetY, this.workingShape, true);
                 }
                 if (shapeSide.side === "") {
                     shapeSide = detectAreaHandler(e.offsetX, e.offsetY, this.detectedShape, true);
-                    
+
                 }
-                
+
                 if (shapeSide.side === "top-left" && this.workingShape && shapeSide.id === this.workingShape.id) {
                     this.canvas.style.cursor = "nw-resize";
                 }

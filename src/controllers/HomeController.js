@@ -10,6 +10,7 @@ class HomeController {
         this.view = new HomeView();
 
         this.id = this.setMaxId();
+        this.view.options();
         this.view.getShapes(this.model.getShapes());
 
         this.view.renderRectangles();
